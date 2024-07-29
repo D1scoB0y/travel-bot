@@ -1,0 +1,48 @@
+version: '3.8'
+
+services:
+  travel-bot:
+    build: .
+    container_name: travel-bot
+    restart: always
+    image: travel-bot:1
+    command: bash run.sh
+    networks:
+      - backend
+    depends_on:
+      - postgres
+      - selenium
+
+  selenium:
+    image: selenium/standalone-chrome:latest
+    shm_size: 2gb
+    restart: always
+    container_name: selenium
+    expose:
+      - 4444
+    ports:
+      - 7900:7900
+    networks:
+      - backend
+
+  postgres:
+    container_name: postgres
+    image: postgres:14-alpine
+    restart: always
+    ports:
+      - 5885:5432
+    expose:
+      - 5432
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    env_file:
+      - .env
+    networks:
+      - backend
+
+networks:
+  backend:
+    driver: bridge 
+
+volumes:
+  postgres_data:
